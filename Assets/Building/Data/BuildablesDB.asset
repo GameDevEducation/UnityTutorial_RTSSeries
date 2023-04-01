@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68eab5a9884877c4a8b1060a6f1056fd, type: 3}
+  m_Name: BuildablesDB
+  m_EditorClassIdentifier: 
+  <AllBuildables>k__BackingField:
+  - {fileID: 11400000, guid: 2d4feea4b4d8c8a449f3be876cd7ce34, type: 2}
+  - {fileID: 11400000, guid: 4d4931b456ea3384c9480ce905dd0b2b, type: 2}
+  - {fileID: 11400000, guid: 2bfa5a4ffbbca694fbcd2f90659b63a3, type: 2}
+  - {fileID: 11400000, guid: 7588ccfddaaa7d64b955103526c6ee34, type: 2}
+  - {fileID: 11400000, guid: d54849b7d6a898442b5d8882b30bf529, type: 2}
+  - {fileID: 11400000, guid: c128bce5ee8e1c84eaf7ec5f986707a7, type: 2}

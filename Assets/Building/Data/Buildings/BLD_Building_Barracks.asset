@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e9ab62b7f55abb4ca092a1fd84d6c6c, type: 3}
+  m_Name: BLD_Building_Barracks
+  m_EditorClassIdentifier: 
+  <BuildableType>k__BackingField: 1
+  <Name>k__BackingField: Barracks
+  <Description>k__BackingField: Barracks
+  <Cost>k__BackingField: 0
+  <BuildTime>k__BackingField: 5
+  <QueueSizeLimit>k__BackingField: 1
+  <GlobalBuildLimit>k__BackingField: -1
+  <UIImage>k__BackingField: {fileID: 0}
