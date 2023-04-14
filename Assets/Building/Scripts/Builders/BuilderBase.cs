@@ -42,13 +42,13 @@ public class BuilderBase : MonoBehaviour
     bool IsPaused = false;
 
     [Header("Events")]
-    [SerializeField] UnityEvent<BuildData> OnBuildQueued = new();
-    [SerializeField] UnityEvent<BuildData> OnBuildStarted = new();
-    [SerializeField] UnityEvent<BuildData> OnBuildPaused = new();
-    [SerializeField] UnityEvent<BuildData> OnBuildResumed = new();
-    [SerializeField] UnityEvent<BuildData> OnBuildCancelled = new();
-    [SerializeField] UnityEvent<BuildData> OnBuildTicked = new();
-    [SerializeField] UnityEvent<BuildData> OnBuildCompleted = new();
+    public UnityEvent<BuildData> OnBuildQueued = new();
+    public UnityEvent<BuildData> OnBuildStarted = new();
+    public UnityEvent<BuildData> OnBuildPaused = new();
+    public UnityEvent<BuildData> OnBuildResumed = new();
+    public UnityEvent<BuildData> OnBuildCancelled = new();
+    public UnityEvent<BuildData> OnBuildTicked = new();
+    public UnityEvent<BuildData> OnBuildCompleted = new();
 
     [Header("Debug Tools")]
     [SerializeField] SOBuildableObjectBase DEBUG_ObjectToBuild;
@@ -205,6 +205,26 @@ public class BuilderBase : MonoBehaviour
         return true;
     }
 
+    public bool RequestToCancelBuild(SOBuildableObjectBase buildable)
+    {
+        if (BuildsInProgress.Count == 0)
+            return true;
+
+        if (BuildsInProgress[0].ObjectBeingBuilt == buildable)
+            return CancelBuild(BuildsInProgress[0]);
+
+        for (int itemIndex = 0; itemIndex < BuildsInProgress.Count; itemIndex++)
+        {
+            if (BuildsInProgress[itemIndex].ObjectBeingBuilt == buildable)
+            {
+                BuildsInProgress.RemoveAt(itemIndex);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public bool CancelBuild(BuildData buildData)
     {
         if (!BuildsInProgress.Contains(buildData))
@@ -236,5 +256,13 @@ public class BuilderBase : MonoBehaviour
 
         if (BuildsInProgress.Count > 0)
             OnBuildResumed.Invoke(BuildsInProgress[0]);
+    }
+
+    public List<SOBuildableObjectBase> GetBuildableItemsForType(SOBuildableObjectBase.EType inType)
+    {
+        List<SOBuildableObjectBase> outList = null;
+        AvailableBuildables.TryGetValue(inType, out outList);
+
+        return outList;
     }
 }
