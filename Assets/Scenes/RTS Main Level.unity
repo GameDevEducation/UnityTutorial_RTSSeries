@@ -677,11 +677,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57dbc3816376e3740ab2de928af70b71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LinkedBuilder: {fileID: 1255486263}
+  DefaultBuilder: {fileID: 1255486263}
   CategoryUIPrefab: {fileID: 7571948998050952997, guid: ad5473a2455802041851d310d5d2a635, type: 3}
   ItemUIPrefab: {fileID: 1371372264682321701, guid: 3dd869b1d37670d4287973721ad608cc, type: 3}
   CategoryUIRoot: {fileID: 252903865}
   ItemUIRoot: {fileID: 1491024766}
+  DEBUG_NewBuilderToSet: {fileID: 0}
+  DEBUG_SetNewBuilder: 0
 --- !u!114 &615602004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1194,6 +1196,7 @@ MonoBehaviour:
   BuildablesDB: {fileID: 11400000, guid: fbb2c01f2e5a89048afdccb833c10335, type: 2}
   PermittedTypes: 
   OverridePermittedBuildables: []
+  CancelBehaviour: 1
   OnBuildQueued:
     m_PersistentCalls:
       m_Calls: []
@@ -1355,6 +1358,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1611,8 +1615,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BuildablesDB: {fileID: 11400000, guid: fbb2c01f2e5a89048afdccb833c10335, type: 2}
-  PermittedTypes: 
+  PermittedTypes: 65000000
   OverridePermittedBuildables: []
+  CancelBehaviour: 1
   OnBuildQueued:
     m_PersistentCalls:
       m_Calls: []

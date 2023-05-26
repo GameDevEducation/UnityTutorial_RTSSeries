@@ -5,6 +5,12 @@ using UnityEngine.Events;
 
 public class BuilderBase : MonoBehaviour
 {
+    public enum ECancelBehaviour
+    {
+        CancelsInProgress,
+        CancelsLastQueued
+    }
+
     public class BuildData
     {
         public BuilderBase OwningBuilder { get; private set; }
@@ -34,6 +40,8 @@ public class BuilderBase : MonoBehaviour
     [SerializeField] List<SOBuildableObjectBase.EType> PermittedTypes = new();
     [Tooltip("If not empty then only the listed buildables are supported")]
     [SerializeField] List<SOBuildableObjectBase> OverridePermittedBuildables = new();
+
+    [SerializeField] ECancelBehaviour CancelBehaviour = ECancelBehaviour.CancelsLastQueued;
 
     Dictionary<SOBuildableObjectBase.EType, List<SOBuildableObjectBase>> AvailableBuildables = new();
 
@@ -211,7 +219,18 @@ public class BuilderBase : MonoBehaviour
             return true;
 
         if (BuildsInProgress[0].ObjectBeingBuilt == buildable)
-            return CancelBuild(BuildsInProgress[0]);
+        {
+            if (CancelBehaviour == ECancelBehaviour.CancelsInProgress)
+                return CancelBuild(BuildsInProgress[0]);
+            else
+            {
+                for (int itemIndex = BuildsInProgress.Count - 1; itemIndex >= 0; itemIndex--)
+                {
+                    if (BuildsInProgress[itemIndex].ObjectBeingBuilt == buildable)
+                        return CancelBuild(BuildsInProgress[itemIndex]);
+                }
+            }
+        }
 
         for (int itemIndex = 0; itemIndex < BuildsInProgress.Count; itemIndex++)
         {
@@ -264,5 +283,18 @@ public class BuilderBase : MonoBehaviour
         AvailableBuildables.TryGetValue(inType, out outList);
 
         return outList;
+    }
+
+    public int GetNumberOfItemQueued(SOBuildableObjectBase buildable)
+    {
+        int numQueued = 0;
+
+        foreach(var buildData in BuildsInProgress)
+        {
+            if (buildData.ObjectBeingBuilt == buildable)
+                ++numQueued;
+        }
+
+        return numQueued;
     }
 }
