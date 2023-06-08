@@ -15,7 +15,11 @@ MonoBehaviour:
   <BuildableType>k__BackingField: 101
   <Name>k__BackingField: Tank
   <Description>k__BackingField: Tank
-  <Cost>k__BackingField: 0
+  <ResourceCosts>k__BackingField:
+  - Type: 1
+    Amount: 50
+  - Type: 2
+    Amount: 250
   <BuildTime>k__BackingField: 5
   <QueueSizeLimit>k__BackingField: 10
   <GlobalBuildLimit>k__BackingField: -1

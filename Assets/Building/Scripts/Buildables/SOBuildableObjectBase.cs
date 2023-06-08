@@ -16,7 +16,7 @@ public abstract class SOBuildableObjectBase : ScriptableObject
     [field: SerializeField] public EType BuildableType { get; protected set; } = EType.NotSet;
     [field: SerializeField] public string Name { get; protected set; }
     [field: SerializeField] public string Description { get; protected set; }
-    [field: SerializeField] public int Cost { get; protected set; }
+    [field: SerializeField] public List<ConstructionResource> ResourceCosts { get; protected set; } = new();
 
     [field: SerializeField] public float BuildTime { get; protected set; }
     [field: SerializeField] public int QueueSizeLimit { get; protected set; }

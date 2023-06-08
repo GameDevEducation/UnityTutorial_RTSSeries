@@ -11,6 +11,18 @@ public class BuilderBase : MonoBehaviour
         CancelsLastQueued
     }
 
+    public enum ECostMode
+    {
+        PayOverTime,
+        PayUpfront,
+    }
+
+    public enum ERefundMode
+    {
+        Full,
+        None
+    }
+
     public class BuildData
     {
         public BuilderBase OwningBuilder { get; private set; }
@@ -19,22 +31,99 @@ public class BuilderBase : MonoBehaviour
 
         public bool HasStarted => CurrentBuildProgress > 0f;
 
+        Dictionary<ConstructionResource.EType, int> ResourcesRequired = new();
+        public Dictionary<ConstructionResource.EType, int> ResourcesConsumed { get; private set; } = new();
+        Dictionary<ConstructionResource.EType, float> FractionalConsumptionPending = new();
+
+        int TotalResourcesRequired = 0;
+        int TotalResourcesSupplied = 0;
+
         public BuildData(BuilderBase owningBuilder, SOBuildableObjectBase objectBeingBuilt)
         {
             OwningBuilder = owningBuilder;
             ObjectBeingBuilt = objectBeingBuilt;
             CurrentBuildProgress = 0f;
+
+            // build up the cost data
+            foreach(var resource in objectBeingBuilt.ResourceCosts)
+            {
+                int amountRequired = 0;
+                ResourcesRequired.TryGetValue(resource.Type, out amountRequired);
+
+                amountRequired += resource.Amount;
+                TotalResourcesRequired += resource.Amount;
+
+                ResourcesRequired[resource.Type] = amountRequired;
+                ResourcesConsumed[resource.Type] = 0;
+                FractionalConsumptionPending[resource.Type] = 0;
+            }
         }
 
-        public bool Tick(float deltaTime)
+        public void MarkAllResourcesRequiredAsConsumed()
         {
-            CurrentBuildProgress = Mathf.Clamp01(CurrentBuildProgress + (deltaTime / ObjectBeingBuilt.BuildTime));
+            foreach(var kvp in ResourcesRequired)
+            {
+                ResourcesConsumed[kvp.Key] = kvp.Value;
+            }
+
+            TotalResourcesSupplied = TotalResourcesRequired;
+        }
+
+        public bool Tick(float deltaTime, System.Func<ConstructionResource.EType, int, int> requisitionFn)
+        {
+            float attemptedProgress = deltaTime / ObjectBeingBuilt.BuildTime;
+
+            if (requisitionFn != null)
+            {
+                // update the amount we've tried to consume and if possible requisition it
+                foreach(var kvp in ResourcesRequired)
+                {
+                    var resourceType = kvp.Key;
+                    var resourceAmount = kvp.Value;
+
+                    if (resourceAmount == 0)
+                        continue;
+
+                    if (ResourcesRequired[resourceType] == ResourcesConsumed[resourceType])
+                        continue;
+
+                    float newFractionalAmount = FractionalConsumptionPending[resourceType];
+                    newFractionalAmount += resourceAmount * attemptedProgress;
+
+                    float maximumRequestable = resourceAmount - ResourcesConsumed[resourceType];
+                    if (newFractionalAmount > maximumRequestable)
+                        newFractionalAmount = maximumRequestable;
+
+                    // can we attempt to consume the resource?
+                    if (newFractionalAmount >= 1)
+                    {
+                        int amountSupplied = requisitionFn(resourceType, Mathf.FloorToInt(newFractionalAmount));
+
+                        newFractionalAmount -= amountSupplied;
+                        TotalResourcesSupplied += amountSupplied;
+
+                        ResourcesConsumed[resourceType] += amountSupplied;
+                    }
+
+                    FractionalConsumptionPending[resourceType] = newFractionalAmount;
+                }
+
+                CurrentBuildProgress = (float)TotalResourcesSupplied / (float)TotalResourcesRequired;
+            }
+            else
+            {
+                CurrentBuildProgress = Mathf.Clamp01(CurrentBuildProgress + attemptedProgress);
+            }
 
             return CurrentBuildProgress >= 1f;
         }
     }
 
     [SerializeField] SOBuildableDatabase BuildablesDB;
+    [SerializeField] ResourceBank LinkedResourceBank;
+
+    [SerializeField] ECostMode CostMode = ECostMode.PayUpfront;
+    [SerializeField] ERefundMode RefundMode = ERefundMode.Full;
 
     [Tooltip("If not empty then can only see these types of buildables")]
     [SerializeField] List<SOBuildableObjectBase.EType> PermittedTypes = new();
@@ -158,7 +247,11 @@ public class BuilderBase : MonoBehaviour
             if (!buildData.HasStarted)
                 OnBuildStarted.Invoke(buildData);
 
-            bool isFinished = buildData.Tick(deltaTime);
+            bool isFinished = false;
+            if (CostMode == ECostMode.PayUpfront)
+                isFinished = buildData.Tick(deltaTime, null);
+            else
+                isFinished = buildData.Tick(deltaTime, RequisitionResourceHelper);
             OnBuildTicked.Invoke(buildData);
 
             if (isFinished)
@@ -170,6 +263,11 @@ public class BuilderBase : MonoBehaviour
             else
                 return;
         }
+    }
+
+    int RequisitionResourceHelper(ConstructionResource.EType resourceType, int resourceAmount)
+    {
+        return LinkedResourceBank.RequestResource(resourceType, resourceAmount);
     }
 
     public bool CanBuild(SOBuildableObjectBase buildable)
@@ -196,6 +294,12 @@ public class BuilderBase : MonoBehaviour
                 return false;
         }
 
+        if (CostMode == ECostMode.PayUpfront)
+        {
+            if (!LinkedResourceBank.AreResourcesAvailable(buildable.ResourceCosts))
+                return false;
+        }
+
         return true;
     }
 
@@ -204,7 +308,18 @@ public class BuilderBase : MonoBehaviour
         if (!CanBuild(buildable))
             return false;
 
+        if (CostMode == ECostMode.PayUpfront)
+        {
+            if (!LinkedResourceBank.RequestResources(buildable.ResourceCosts))
+                return false;
+        }
+
         BuildData newBuildData = new BuildData(this, buildable);
+
+        if (CostMode == ECostMode.PayUpfront) 
+        {
+            newBuildData.MarkAllResourcesRequiredAsConsumed();
+        }
 
         BuildsInProgress.Add(newBuildData);
 
@@ -236,8 +351,7 @@ public class BuilderBase : MonoBehaviour
         {
             if (BuildsInProgress[itemIndex].ObjectBeingBuilt == buildable)
             {
-                BuildsInProgress.RemoveAt(itemIndex);
-                return true;
+                return CancelBuild(BuildsInProgress[itemIndex]);
             }
         }
 
@@ -251,6 +365,9 @@ public class BuilderBase : MonoBehaviour
 
         BuildsInProgress.Remove(buildData);
         OnBuildCancelled.Invoke(buildData);
+
+        if (RefundMode == ERefundMode.Full)
+            LinkedResourceBank.AddResources(buildData.ResourcesConsumed);
 
         return true;
     }

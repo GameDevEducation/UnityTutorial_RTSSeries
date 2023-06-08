@@ -11,7 +11,6 @@ public class SOBuildable_Unit : SOBuildableObjectBase
         BuildableType = EType.Unit;
         Name = "Unit";
         Description = Name;
-        Cost = 0;
         BuildTime = 5f;
         QueueSizeLimit = 10;
         GlobalBuildLimit = -1;

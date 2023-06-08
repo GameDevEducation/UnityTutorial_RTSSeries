@@ -11,7 +11,6 @@ public class SOBuildable_Building : SOBuildableObjectBase
         BuildableType = EType.Building;
         Name = "Building";
         Description = Name;
-        Cost = 0;
         BuildTime = 5f;
         QueueSizeLimit = 1;
         GlobalBuildLimit = -1;

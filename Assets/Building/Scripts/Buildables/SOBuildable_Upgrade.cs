@@ -11,7 +11,6 @@ public class SOBuildable_Upgrade : SOBuildableObjectBase
         BuildableType = EType.Upgrade;
         Name = "Upgrade";
         Description = Name;
-        Cost = 0;
         BuildTime = 5f;
         QueueSizeLimit = 1;
         GlobalBuildLimit = 1;

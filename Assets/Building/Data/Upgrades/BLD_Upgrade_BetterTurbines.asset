@@ -15,7 +15,13 @@ MonoBehaviour:
   <BuildableType>k__BackingField: 201
   <Name>k__BackingField: Better Turbines
   <Description>k__BackingField: Better Turbines
-  <Cost>k__BackingField: 0
+  <ResourceCosts>k__BackingField:
+  - Type: 1
+    Amount: 50
+  - Type: 2
+    Amount: 75
+  - Type: 3
+    Amount: 100
   <BuildTime>k__BackingField: 5
   <QueueSizeLimit>k__BackingField: 1
   <GlobalBuildLimit>k__BackingField: 1

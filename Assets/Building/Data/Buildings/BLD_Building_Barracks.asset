@@ -15,7 +15,11 @@ MonoBehaviour:
   <BuildableType>k__BackingField: 1
   <Name>k__BackingField: Barracks
   <Description>k__BackingField: Barracks
-  <Cost>k__BackingField: 0
+  <ResourceCosts>k__BackingField:
+  - Type: 1
+    Amount: 100
+  - Type: 2
+    Amount: 100
   <BuildTime>k__BackingField: 5
   <QueueSizeLimit>k__BackingField: 1
   <GlobalBuildLimit>k__BackingField: -1
